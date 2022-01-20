@@ -6,6 +6,5 @@ var userController = require('../../controllers/admin/userController')
 
 // Hello a user
 router.post('/hello', userController.hello)
-router.get('/helloget', userController.hello)
 
 module.exports = router
