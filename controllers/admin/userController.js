@@ -8,6 +8,7 @@ const { STS } = require("@aws-sdk/client-sts")
 // Back User Hello
 exports.hello = async function (req, res) {
   console.log('admin > user > hello')
+
   const user = { email: '1 test@test.com' }
 
   const client = new DynamoDBClient({ region: "eu-west-3" })
