@@ -1,17 +1,21 @@
 
+// DynamoDB Connect
 const { DynamoDBClient, ListTablesCommand } = require("@aws-sdk/client-dynamodb")
 
 // Back User Hello
-exports.hello = async function (req, res) {
-  console.log('admin > user > hello')
+exports.signup = function (req, res) {
+  console.log('admin > user > signup')
+  console.log(req.body)
+  if (req.body.user && req.body.user.email && req.body.user.password1 && req.body.user.password2 && (req.body.user.password1 === req.body.user.password2)) {
+    console.log(1)
+    const user = req.body.user
+  }
+  res.status(400).send({ codeError: 'error.admin.user.signup.badParameters' })
 
-  const user = { email: '1 test@test.com' }
-
-  const client = new DynamoDBClient({ region: "eu-west-3" })
+  /*const client = new DynamoDBClient({ region: "eu-west-3" })
   const command = new ListTablesCommand({})
   const results = await client.send(command)
-
-  res.send({ 'tables': results.TableNames.join("\n") })
+  res.send({ 'tables': results.TableNames.join("\n") })*/
 
   //
   /*try {

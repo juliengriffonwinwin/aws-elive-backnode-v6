@@ -5,7 +5,6 @@ var router = express.Router()
 var userController = require('../../controllers/admin/userController')
 
 // Hello a user
-router.post('/hello', userController.hello)
-router.get('/hello', userController.hello)
+router.post('/signup', userController.signup)
 
 module.exports = router

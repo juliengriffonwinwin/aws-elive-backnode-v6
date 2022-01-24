@@ -3,6 +3,7 @@ const cors = require('cors')
 const app = express()
 
 app.use(cors({ origin: ['http://localhost:3915'], optionsSuccessStatus: 200 }))
+app.use(express.json())
 
 // Public Path for DIST foler
 const path = require('path')
