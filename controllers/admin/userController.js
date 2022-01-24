@@ -1,9 +1,5 @@
 
 const { DynamoDBClient, ListTablesCommand } = require("@aws-sdk/client-dynamodb")
-const { Credentials } = require("@aws-sdk/types")
-const { defaultProvider } = require("@aws-sdk/credential-provider-node")
-const { AssumeRoleParams } = require("@aws-sdk/credential-provider-ini")
-const { STS } = require("@aws-sdk/client-sts")
 
 // Back User Hello
 exports.hello = async function (req, res) {
