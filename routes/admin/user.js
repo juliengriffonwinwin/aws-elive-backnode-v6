@@ -4,7 +4,7 @@ var router = express.Router()
 // Require controller modules
 var userController = require('../../controllers/admin/userController')
 
-// Hello a user
+// Create a User
 router.post('/signup', userController.signup)
 
 module.exports = router
