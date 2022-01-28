@@ -1,19 +1,41 @@
 {
-  "AttributeDefinitions": [
-    {
-      "AttributeName": "id",
-      "AttributeType": "S"
-    }
-  ],
+  "TableName": "fullTableName",
   "KeySchema": [
     {
       "AttributeName": "id",
       "KeyType": "HASH"
     }
   ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "id",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "email",
+      "AttributeType": "S"
+    }
+  ],
   "ProvisionedThroughput": {
     "ReadCapacityUnits": 1,
     "WriteCapacityUnits": 1
   },
-  "TableName": "fullTableName"
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "EmailIndex",
+      "KeySchema": [
+        {
+          "AttributeName": "email",
+          "KeyType": "HASH"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 1,
+        "WriteCapacityUnits": 1
+      }
+    }
+  ]
 }

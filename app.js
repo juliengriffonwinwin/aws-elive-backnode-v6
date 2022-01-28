@@ -25,13 +25,13 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 const PORT = process.env.PORT || 8081
 
 // Middleware niveau application pour contrôle du Bearer
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   const bearer = Token.getBearerToken(req)
   if (bearer) {
     const database = JSON.parse(fs.readFileSync('config/databases.json'))[bearer]
     if (database) {
       res.locals.database = database
-      next()
+      return next()
     } else {
       res.status(400).send({ codeError: 'error.admin.setup.badDatabase' })
     }

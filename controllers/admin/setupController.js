@@ -1,15 +1,8 @@
 
-// Models
 const User = require('../../models/user')
-
-// FileSystem
+const Bcrypt = require('bcrypt')
 const fs = require('fs')
-
-// DynamoDB Command
 const { DynamoDBClient, CreateTableCommand } = require('@aws-sdk/client-dynamodb')
-
-// Create uniq id
-const { v4: uuidv4 } = require('uuid')
 
 // Create Elive Admin Tables
 exports.createTables = async function (req, res) {
@@ -32,7 +25,7 @@ exports.createTables = async function (req, res) {
     dynamoCommandParams.TableName = fullTableName
 
     try {
-      const response = await dynamoDBClient.send(new CreateTableCommand(dynamoCommandParams))
+      await dynamoDBClient.send(new CreateTableCommand(dynamoCommandParams))
       console.log('admin > setup > createTables > OK : ' + fullTableName)
       tableNames[tableName] = true
     } catch (err) {
@@ -46,25 +39,25 @@ exports.createTables = async function (req, res) {
   } else {
     res.status(400).send({ codeError: 'error.admin.setup.koCreateTables', messageError: tableNames })
   }
-
 }
 
 // Create Elive Super Admin User
 exports.createSuperAdmin = async function (req, res) {
   console.log('admin > setup > createSuperAdmin')
-  if (req.body.user && req.body.user.email) {
+  if (req.body.user && req.body.user.email && req.body.user.password) {
     const dynamoDBClient = new DynamoDBClient({ region: 'eu-west-3' })
     const user = new User(dynamoDBClient)
     user.setConnection(res.locals.database.client_slug + '.' + res.locals.database.project_slug)
-    user.setId(uuidv4())
     user.fill({
-      email: req.body.user.email.trim().toLowerCase()
+      email: req.body.user.email.trim().toLowerCase(),
+      password: Bcrypt.hashSync(req.body.user.password.trim(), Bcrypt.genSaltSync()),
+      profil: 'superadmin'
     })
     user.save().then((response) => {
       console.log(response)
       if (response.success) {
         console.log('admin > setup > createSuperAdmin > OK')
-        res.send({ codeSuccess: 'success.admin.setup.okCreateSuperAdmin', user })
+        res.send({ codeSuccess: 'success.admin.setup.okCreateSuperAdmin' })
       } else {
         console.log('admin > setup > createSuperAdmin > ERROR ' + response.error)
         res.status(400).send({ codeError: 'error.admin.setup.koCreateSuperAdmin', messageError: response.error })

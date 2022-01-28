@@ -5,6 +5,6 @@ var router = express.Router()
 var projectController = require('../../controllers/admin/projectController')
 
 // Create DynamoDB tables
-router.get('/createProject', projectController.createProject)
+router.post('/create', projectController.create)
 
 module.exports = router

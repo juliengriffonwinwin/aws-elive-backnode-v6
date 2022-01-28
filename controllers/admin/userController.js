@@ -1,43 +1,62 @@
 
-// Modules
-const Token = require('../../helpers/token')
-
-// Models
+const Bcrypt = require('bcrypt')
 const User = require('../../models/user')
-
-// DynamoDB Command
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb')
 
-// Create uniq id
-const { v4: uuidv4 } = require('uuid')
-
-// Create a User
+// Create a User (Client / CDC)
 exports.signup = async function (req, res) {
-  /*console.log('admin > user > signup')
-
-  if (req.body.user && req.body.user.email && req.body.user.password1 && req.body.user.password2 && (req.body.user.password1 === req.body.user.password2)) {
-    const reqUser = req.body.user
-
+  console.log('admin > user > signup')
+  if (req.body.user && req.body.user.email && req.body.user.password) {
     const dynamoDBClient = new DynamoDBClient({ region: 'eu-west-3' })
-    const clientSlug = 'elive'
-    const projectSlug = 'admin'
-    const tableName = 'users'
-    const fullTableName = clientSlug + '.' + projectSlug + '.' + tableName
-
-    console.log(reqUser)
-
-    const id = uuidv4()
-    const user = new User(dynamoDBClient)
-    user.setTableName(fullTableName)
-    user.setId(id)
-    user.save().then((response) => {
-      if (response.success) {
-        res.send({ id })
+    let user = new User(dynamoDBClient)
+    user.setConnection(res.locals.database.client_slug + '.' + res.locals.database.project_slug)
+    user.where('email', req.body.user.email).first().then((response) => {
+      console.log(response)
+      if (response.success && !response.item) {
+        console.log('admin > user > signup > OK')
+        req.body.user.password = Bcrypt.hashSync(req.body.user.password.trim(), Bcrypt.genSaltSync())
+        req.body.user.email.indexOf('@win-win.com') > 0 ? req.body.user.profil = 'cdc' : req.body.user.profil = 'client'
+        user.fill(req.body.user)
+        user.save().then((response) => {
+          // console.log(response)
+          if (response.success) {
+            user = response.item
+            console.log('admin > user > signup > OK')
+            res.send({ codeSuccess: 'admin.user.signup.ok', user })
+          } else {
+            console.log('admin > user > signup > ERROR ' + response.error)
+            res.status(400).send({ codeError: 'error.admin.user.signup.ko', messageError: response.error })
+          }
+        })
       } else {
-        res.status(400).send({ codeError: 'error.admin.user.signup.nosave', messageError: response.error })
+        console.log('admin > user > signup > ERROR')
+        res.status(400).send({ codeError: 'error.admin.user.signup.objectExist', messageError: response.error })
       }
     })
   } else {
-    res.status(400).send({ codeError: 'error.admin.user.signup.badParameters' })
-  }*/
+    res.status(400).send({ codeError: 'error.admin.setup.badParameters' })
+  }
+}
+
+// Log a User (SuperAdmin / CDC/ Client)
+exports.login = async function (req, res) {
+  console.log('admin > user > login')
+  if (req.body.user && req.body.user.email && req.body.user.password) {
+    const dynamoDBClient = new DynamoDBClient({ region: 'eu-west-3' })
+    let user = new User(dynamoDBClient)
+    user.setConnection(res.locals.database.client_slug + '.' + res.locals.database.project_slug)
+    user.where('email', req.body.user.email).first().then((response) => {
+      console.log(response)
+      if (response.success && response.item && Bcrypt.compareSync(req.body.user.password, response.item.password)) {
+        console.log('admin > user > login > OK')
+        delete response.item.password
+        res.send({ codeSuccess: 'admin.user.login.ok', user: response.item })
+      } else {
+        console.log('admin > user > login > ERROR ' + response.error)
+        res.status(400).send({ codeError: 'error.admin.user.login.ko', messageError: response.error })
+      }
+    })
+  } else {
+    res.status(400).send({ codeError: 'error.admin.setup.badParameters' })
+  }
 }
